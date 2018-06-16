@@ -5,6 +5,10 @@ a regular `let` would work just fine. What if some of these functions could fail
 Wouldn't it be nice to have a `let` that can call a predicate checking for an error and short-cicruit the
 computation while returning the first encountered error? `err-let` does exactly this.
 
+# dependency coordinates
+
+```[error-helpers "0.1.0"]```
+
 ```clojure
 ;; test functions mimicing failure
 (require '[error-helpers.core :refer [err-let]])
