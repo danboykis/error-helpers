@@ -9,6 +9,7 @@ computation while returning the first encountered error? `err-let` does exactly 
 
 ```[error-helpers "0.1.0"]```
 
+# example
 ```clojure
 ;; test functions mimicing failure
 (require '[error-helpers.core :refer [err-let]])
