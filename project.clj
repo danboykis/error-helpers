@@ -3,4 +3,4 @@
   :url "https://github.com/danboykis/error-helpers"
   :license {:name "Unlicense"
             :url "http://unlicense.org/"}
-  :dependencies [[org.clojure/clojure "1.9.0"]])
+  :dependencies [[org.clojure/clojure "1.10.1"]])

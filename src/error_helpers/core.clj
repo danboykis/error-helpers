@@ -1,15 +1,16 @@
 (ns error-helpers.core)
 
-(defmacro ok-let [ok? unwrap-ok make-ok bindings & body]
-  (cond (zero? (count bindings))      `(~make-ok (do ~@body))
+(defmacro err-let [err-fn bindings & body]
+  (cond (zero? (count bindings))      `(do ~@body)
         (odd? (count bindings)) (throw (IllegalArgumentException. (str bindings " number of bindings must be even")))
-        (symbol? (bindings 0))        `(let ~(subvec bindings 0 2 )
+        (nil? err-fn)  `(let* ~(destructure bindings) ~@body)
+        (symbol? (bindings 0))        `(let ~(subvec bindings 0 2)
                                          (let [b0#    ~(bindings 0)
-                                               ok-b0# (~ok? b0#)]
-                                           (if ok-b0#
-                                             (let [~(bindings 0) (~unwrap-ok b0#)]
-                                               (ok-let ~ok? ~unwrap-ok ~make-ok ~(subvec bindings 2) ~@body))
-                                             b0#)))
+                                               err-b0# (~err-fn b0#)]
+                                           (if err-b0#
+                                             (let bindings body)b0#
+                                             (let [~(bindings 0) b0#]
+                                               (err-let ~err-fn ~(subvec bindings 2) ~@body)))))
         :else (throw (IllegalArgumentException. "binding must be a symbol"))))
 
 (defmacro if-pred [pred? bindings then else]
@@ -21,11 +22,30 @@
            ~then)
          ~else))))
 
-(defn- error-helper [f ok-key err-key err-message m]
+(defmacro default-to [operation default-value]
   `(try
-     {~ok-key ~f}
+     ~operation
      (catch Exception e#
-       (merge {~err-key [~err-message e#]} ~m))))
+       ~default-value)))
 
-(defmacro with-error [f {:keys [ok-key err-key err-message context] :or {context {}}}]
-  (error-helper f ok-key err-key err-message context))
+(defn thread-calls [err-key calls init-arg]
+  {:pre [(not (empty? calls))]}
+  (loop [[c & cs] calls result init-arg]
+    (cond
+      (get result err-key)
+      result
+
+      (nil? c)
+      result
+
+      :else
+      (recur cs (c result)))))
+
+(defn first-non-error-choice [err-key pick-fn choices]
+  (loop [[choice & cs] choices errors []]
+    (if (nil? choice)
+      {err-key errors}
+      (let [result (pick-fn (choice))]
+        (if-some [err (get result err-key)]
+          (recur cs (conj errors err))
+          result)))))
