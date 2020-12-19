@@ -37,7 +37,7 @@
   {:pre [(not (empty? calls))]}
   (loop [[c & cs] calls result init-arg]
     (cond
-      (get result err-key)
+      (some? (get result err-key))
       result
 
       (nil? c)
