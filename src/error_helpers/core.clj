@@ -1,17 +1,22 @@
 (ns error-helpers.core)
 
 (defmacro err-let [err-fn bindings & body]
-  (cond (zero? (count bindings))      `(do ~@body)
-        (odd? (count bindings)) (throw (IllegalArgumentException. (str bindings " number of bindings must be even")))
-        (nil? err-fn)  `(let* ~(destructure bindings) ~@body)
-        (symbol? (bindings 0))        `(let ~(subvec bindings 0 2)
-                                         (let [b0#    ~(bindings 0)
-                                               err-b0# (~err-fn b0#)]
-                                           (if err-b0#
-                                             (let bindings body)b0#
-                                             (let [~(bindings 0) b0#]
-                                               (err-let ~err-fn ~(subvec bindings 2) ~@body)))))
-        :else (throw (IllegalArgumentException. "binding must be a symbol"))))
+  (cond
+    (odd? (count bindings))
+    (throw (IllegalArgumentException. (str bindings " number of bindings must be even")))
+
+    (zero? (count bindings))
+    `(do ~@body)
+
+    (nil? err-fn)
+    `(let* ~(destructure bindings) ~@body)
+
+    :else
+    `(let [b1# ~(bindings 1)]
+       (if (some? (~err-fn b1#))
+         b1#
+         (let [~(bindings 0) b1#]
+           (err-let ~err-fn ~(subvec bindings 2) ~@body))))))
 
 (defmacro if-pred [pred? bindings then else]
   (when (not= 2 (count bindings)) (throw (IllegalArgumentException. (str bindings " number of bindings must be 2"))))
