@@ -35,3 +35,39 @@ user=> (attempt-to-exec 10)
 user=> (attempt-to-exec 10)
 {:c 4}
 ```
+
+```clojure
+(require '[error-helpers.core :refer [thread-calls]])
+```
+```
+(thread-calls :myapp/error [service-a service-b service-c] 10)
+#:myapp{:error "n is even: 2"}
+(thread-calls :myapp/error [service-a service-b service-c] 10)
+#:myapp{:error "n is even: 0"}
+(thread-calls :myapp/error [service-a service-b service-c] 10)
+20
+```
+
+```clojure
+(require '[error-helpers.core :refer [first-non-error-choice]])
+```
+
+```
+(first-non-error-choice
+  :myapp/error
+  [#(let [rn (rand-int 100) m {:n rn :position 1}] (if (even? rn) m {:myapp/error m}))
+   #(let [rn (rand-int 100) m {:n rn :position 2}] (if (even? rn) m {:myapp/error m}))
+   #(let [rn (rand-int 100) m {:n rn :position 3}] (if (even? rn) m {:myapp/error m}))])
+
+
+=> {:n 72, :position 1}
+
+(first-non-error-choice
+  :myapp/error
+  [#(let [rn (rand-int 100) m {:n rn :position 1}] (if (even? rn) m {:myapp/error m}))
+   #(let [rn (rand-int 100) m {:n rn :position 2}] (if (even? rn) m {:myapp/error m}))
+   #(let [rn (rand-int 100) m {:n rn :position 3}] (if (even? rn) m {:myapp/error m}))])
+
+=> #:myapp{:error [{:n 33, :position 1} {:n 93, :position 2} {:n 35, :position 3}]}
+
+```

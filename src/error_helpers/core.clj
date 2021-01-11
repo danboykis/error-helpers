@@ -46,11 +46,11 @@
       :else
       (recur cs (c result)))))
 
-(defn first-non-error-choice [err-key pick-fn choices]
+(defn first-non-error-choice [err-key choices]
   (loop [[choice & cs] choices errors []]
     (if (nil? choice)
       {err-key errors}
-      (let [result (pick-fn (choice))]
+      (let [result (choice)]
         (if-some [err (get result err-key)]
           (recur cs (conj errors err))
           result)))))
