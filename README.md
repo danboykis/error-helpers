@@ -3,7 +3,7 @@
 When calling a series of functions where the result from the previous function needs to be fed into the next,
 a regular `let` would work just fine. What if some of these functions could fail returning an error? 
 Wouldn't it be nice to have a `let` that can call a predicate checking for an error and short-cicruit the
-computation while returning the first encountered error? `ok-let` does exactly this.
+computation while returning the first encountered error? `err-let` does exactly this.
 
 # dependency coordinates
 
@@ -25,7 +25,7 @@ computation while returning the first encountered error? `ok-let` does exactly t
     {:c c}))
 ```
 
-```
+```clojure
 user=> (attempt-to-exec 10)
 {:c 8}
 user=> (attempt-to-exec 10)
@@ -38,8 +38,7 @@ user=> (attempt-to-exec 10)
 
 ```clojure
 (require '[error-helpers.core :refer [thread-calls]])
-```
-```
+
 (thread-calls :myapp/error [service-a service-b service-c] 10)
 #:myapp{:error "n is even: 2"}
 (thread-calls :myapp/error [service-a service-b service-c] 10)
@@ -50,9 +49,7 @@ user=> (attempt-to-exec 10)
 
 ```clojure
 (require '[error-helpers.core :refer [first-non-error-choice]])
-```
 
-```
 (first-non-error-choice
   :myapp/error
   [#(let [rn (rand-int 100) m {:n rn :position 1}] (if (even? rn) m {:myapp/error m}))
@@ -69,5 +66,4 @@ user=> (attempt-to-exec 10)
    #(let [rn (rand-int 100) m {:n rn :position 3}] (if (even? rn) m {:myapp/error m}))])
 
 => #:myapp{:error [{:n 33, :position 1} {:n 93, :position 2} {:n 35, :position 3}]}
-
 ```
