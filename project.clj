@@ -1,4 +1,4 @@
-(defproject com.danboykis/error-helpers "0.1.1-SNAPSHOT"
+(defproject com.danboykis/error-helpers "0.1.1"
   :description "working with functions and flows that produce failure "
   :url "https://github.com/danboykis/error-helpers"
   :license {:name "Unlicense"

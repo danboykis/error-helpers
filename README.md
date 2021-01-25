@@ -7,7 +7,7 @@ computation while returning the first encountered error? `err-let` does exactly 
 
 # dependency coordinates
 
-```[com.danboykis/error-helpers "0.1.0"]```
+```[com.danboykis/error-helpers "0.1.1"]```
 
 # example
 ```clojure
